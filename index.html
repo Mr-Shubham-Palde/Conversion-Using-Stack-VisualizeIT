@@ -13,6 +13,10 @@
 
 <h1>Expression Conversion Visualizer</h1>
 
+<div class="main-content">
+
+  <div class="content">
+
 <div class="controls">
 
   <select id="mode">
@@ -28,7 +32,29 @@
 
   <button onclick="startConversion()">Start</button>
   <button onclick="resetAll()">Reset</button>
+  <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+  <button id="togglePrecedence" onclick="togglePrecedence()">Operator Precedence</button>
 
+</div>
+
+<div id="precedenceSidebar" class="sidebar">
+  <h3>Operator Precedence Guide</h3>
+  <p>In expression conversion, operators have different priorities. Higher precedence operators are processed first.</p>
+  <div class="precedence-table">
+    <div class="precedence-row">
+      <span class="op">^ (Exponentiation)</span> <span class="prec">Highest (3)</span>
+    </div>
+    <div class="precedence-row">
+      <span class="op">* (Multiply), / (Divide)</span> <span class="prec">Medium (2)</span>
+    </div>
+    <div class="precedence-row">
+      <span class="op">+ (Add), - (Subtract)</span> <span class="prec">Lowest (1)</span>
+    </div>
+  </div>
+  <div class="note">
+    <strong>How it works:</strong> When converting infix to postfix/prefix, operators with higher or equal precedence are popped from the stack before pushing the current operator. This ensures correct order of operations.
+  </div>
+  <button onclick="togglePrecedence()" class="close-btn">Close</button>
 </div>
 
 <div class="info">
@@ -45,6 +71,10 @@
   <div>
     <h3>Output</h3>
     <div id="outputContainer" class="output-box"></div>
+  </div>
+
+</div>
+
   </div>
 
 </div>
