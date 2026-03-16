@@ -32,52 +32,47 @@ function precedence(op) {
   return 0;
 }
 
+// Postfix: left-assoc uses >=, right-assoc (^) uses strict >
+function shouldPopPostfix(stackTop, current) {
+  if (stackTop === '(') return false;
+  if (current === '^') return precedence(stackTop) > precedence(current);
+  return precedence(stackTop) >= precedence(current);
+}
+
+// Prefix (reversed scan): always strict > handles both assoc types correctly
+function shouldPopPrefix(stackTop, current) {
+  if (stackTop === '(') return false;
+  return precedence(stackTop) > precedence(current);
+}
+
+function getTokenClass(token) {
+  if (token === '^')                  return 'op-exp';
+  if (token === '*' || token === '/') return 'op-muldiv';
+  if (token === '+' || token === '-') return 'op-addsub';
+  if (token === '(' || token === ')') return 'op-paren';
+  return 'op-operand';
+}
+
 function render() {
   stackContainer.innerHTML = "";
   outputContainer.innerHTML = "";
 
   stack.forEach(item => {
     const node = document.createElement("div");
-    node.className = "stack-node";
-    
-    // Add color class based on operator type
-    if (item === '^') {
-      node.classList.add('op-high');
-    } else if (item === '*' || item === '/') {
-      node.classList.add('op-med');
-    } else if (item === '+' || item === '-') {
-      node.classList.add('op-low');
-    } else if (item === '(' || item === ')') {
-      node.classList.add('paren');
-    } else {
-      node.classList.add('operand');
-    }
-    
+    node.className = `stack-item ${getTokenClass(item)}`;
     node.textContent = item;
     stackContainer.appendChild(node);
   });
 
-  // Color output characters
   for (let char of output) {
-    const span = document.createElement("span");
-    if (char === '^') {
-      span.className = 'output-op-high';
-    } else if (char === '*' || char === '/') {
-      span.className = 'output-op-med';
-    } else if (char === '+' || char === '-') {
-      span.className = 'output-op-low';
-    } else if (char === '(' || char === ')') {
-      span.className = 'output-paren';
-    } else {
-      span.className = 'output-operand';
-    }
+    const span = document.createElement("div");
+    span.className = `output-token ${getTokenClass(char)}`;
     span.textContent = char;
     outputContainer.appendChild(span);
   }
 }
 
 function startConversion() {
-
   stack = [];
   output = "";
   index = 0;
@@ -101,12 +96,8 @@ function startConversion() {
 }
 
 function convertStep() {
-
   if (index >= tokens.length) {
-
-    while (stack.length > 0) {
-      output += stack.pop();
-    }
+    while (stack.length > 0) output += stack.pop();
 
     if (mode === "prefix") {
       output = output.split("").reverse().join("");
@@ -120,31 +111,24 @@ function convertStep() {
   }
 
   const token = tokens[index];
+  const shouldPop = mode === "prefix" ? shouldPopPrefix : shouldPopPostfix;
 
   if (/[a-zA-Z0-9]/.test(token)) {
     output += token;
     stepText.textContent = `Operand '${token}' → Output (Operands are always added directly to output)`;
   }
-
   else if (token === '(') {
     stack.push(token);
     stepText.textContent = "Left parenthesis '(' pushed to stack (Marks start of subexpression)";
   }
-
   else if (token === ')') {
-    while (stack.length && stack[stack.length - 1] !== '(') {
-      output += stack.pop();
-    }
-    stack.pop(); // remove the '('
+    while (stack.length && stack[stack.length - 1] !== '(') output += stack.pop();
+    stack.pop();
     stepText.textContent = "Right parenthesis ')': Popped operators until '(' found, then removed '('";
   }
-
   else {
     let poppedOps = [];
-    while (
-      stack.length &&
-      precedence(stack[stack.length - 1]) >= precedence(token)
-    ) {
+    while (stack.length && shouldPop(stack[stack.length - 1], token)) {
       let popped = stack.pop();
       output += popped;
       poppedOps.push(popped);
@@ -156,9 +140,7 @@ function convertStep() {
 
   index++;
   render();
-  if (!paused) {
-    setTimeout(convertStep, speed);
-  }
+  if (!paused) setTimeout(convertStep, speed);
 }
 
 function resetAll() {
@@ -178,13 +160,9 @@ function togglePause() {
   if (!isRunning) return;
   paused = !paused;
   pauseBtn.textContent = paused ? "Resume" : "Pause";
-  if (!paused) {
-    // Resume by calling convertStep again
-    convertStep();
-  }
+  if (!paused) convertStep();
 }
 
-function togglePrecedence() {
-  const sidebar = document.getElementById("precedenceSidebar");
-  sidebar.classList.toggle("visible");
+function togglePrecedencePanel() {
+  document.getElementById("precedenceSidebar").classList.toggle("open");
 }

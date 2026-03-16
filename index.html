@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Expression Conversion Visualizer</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Expression Conversion Visualizer</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -11,79 +11,74 @@
 
 <div class="app">
 
-<h1>Expression Conversion Visualizer</h1>
+  <h1>Expression Conversion Visualizer</h1>
 
-<div class="main-content">
+  <div class="main-content">
+    <div class="content">
 
-  <div class="content">
+      <div class="controls">
+        <select id="mode">
+          <option value="postfix">Infix → Postfix</option>
+          <option value="prefix">Infix → Prefix</option>
+        </select>
 
-<div class="controls">
+        <input type="text" id="expressionInput" placeholder="Enter Infix Expression">
 
-  <select id="mode">
-    <option value="postfix">Infix → Postfix</option>
-    <option value="prefix">Infix → Prefix</option>
-  </select>
+        <label>Speed:</label>
+        <input type="range" id="speedControl" min="0.2" max="2" step="0.1" value="1">
+        <span id="speedLabel">1x</span>
 
-  <input type="text" id="expressionInput" placeholder="Enter Infix Expression">
+        <button id="btnStart" onclick="startConversion()">Start</button>
+        <button id="btnReset" onclick="resetAll()">Reset</button>
+        <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+        <button id="btnPrecedence" onclick="togglePrecedencePanel()">Operator Precedence</button>
+      </div>
 
-  <label>Speed:</label>
-  <input type="range" id="speedControl" min="0.2" max="2" step="0.1" value="1">
-  <span id="speedLabel">1x</span>
+      <div id="precedenceSidebar" class="sidebar">
+        <h3>Operator Precedence Guide</h3>
+        <p>Operators have different priorities. Higher precedence operators are processed first.</p>
+        <div class="precedence-table">
+          <div class="precedence-row">
+            <span class="op">^ &nbsp; Exponentiation</span>
+            <span class="prec">Highest (3)</span>
+          </div>
+          <div class="precedence-row">
+            <span class="op">* / &nbsp; Multiply, Divide</span>
+            <span class="prec">Medium (2)</span>
+          </div>
+          <div class="precedence-row">
+            <span class="op">+ - &nbsp; Add, Subtract</span>
+            <span class="prec">Lowest (1)</span>
+          </div>
+        </div>
+        <div class="note">
+          <strong>How it works:</strong> When an operator is encountered, all stack operators with equal or higher precedence are popped to output before the new one is pushed.
+        </div>
+        <button onclick="togglePrecedencePanel()" class="close-btn">Close</button>
+      </div>
 
-  <button onclick="startConversion()">Start</button>
-  <button onclick="resetAll()">Reset</button>
-  <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
-  <button id="togglePrecedence" onclick="togglePrecedence()">Operator Precedence</button>
+      <div class="info">
+        <div><b>Step:</b> <span id="stepText">Waiting...</span></div>
+      </div>
 
-</div>
+      <div class="visual-section">
+        <div>
+          <h3>Stack (Top ↑)</h3>
+          <div id="stackContainer" class="stack-container"></div>
+        </div>
+        <div>
+          <h3>Output</h3>
+          <div id="outputContainer" class="output-box"></div>
+        </div>
+      </div>
 
-<div id="precedenceSidebar" class="sidebar">
-  <h3>Operator Precedence Guide</h3>
-  <p>In expression conversion, operators have different priorities. Higher precedence operators are processed first.</p>
-  <div class="precedence-table">
-    <div class="precedence-row">
-      <span class="op">^ (Exponentiation)</span> <span class="prec">Highest (3)</span>
     </div>
-    <div class="precedence-row">
-      <span class="op">* (Multiply), / (Divide)</span> <span class="prec">Medium (2)</span>
-    </div>
-    <div class="precedence-row">
-      <span class="op">+ (Add), - (Subtract)</span> <span class="prec">Lowest (1)</span>
-    </div>
   </div>
-  <div class="note">
-    <strong>How it works:</strong> When converting infix to postfix/prefix, operators with higher or equal precedence are popped from the stack before pushing the current operator. This ensures correct order of operations.
-  </div>
-  <button onclick="togglePrecedence()" class="close-btn">Close</button>
-</div>
-
-<div class="info">
-  <div><b>Step:</b> <span id="stepText">Waiting...</span></div>
-</div>
-
-<div class="visual-section">
-
-  <div>
-    <h3>Stack (Top ↑)</h3>
-    <div id="stackContainer" class="stack-container"></div>
-  </div>
-
-  <div>
-    <h3>Output</h3>
-    <div id="outputContainer" class="output-box"></div>
-  </div>
-
-</div>
-
-  </div>
-
-</div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
 <script src="script.js"></script>
-
 <script>
 tsParticles.load("tsparticles", {
   background: { color: "#0d0d0d" },
@@ -94,6 +89,10 @@ tsParticles.load("tsparticles", {
     move: { enable: true, speed: 2 }
   }
 });
+
+function togglePrecedencePanel() {
+  document.getElementById("precedenceSidebar").classList.toggle("open");
+}
 </script>
 
 </body>
