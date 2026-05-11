@@ -5,6 +5,8 @@ let isRunning = false, paused = false, loopRunning = false;
 let originalExpr = "";
 let stepType = "idle";
 
+
+
 // ─── DOM refs ────────────────────────────────────────────────────────────────
 const stackContainer  = document.getElementById("stackContainer");
 const outputContainer = document.getElementById("outputContainer");
