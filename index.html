@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expression Conversion Visualizer</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,69 +14,96 @@
 
   <h1>Expression Conversion Visualizer</h1>
 
-  <div class="main-content">
-    <div class="content">
+  <div class="content">
 
-      <div class="controls">
-        <select id="mode">
-          <option value="postfix">Infix → Postfix</option>
-          <option value="prefix">Infix → Prefix</option>
-        </select>
-
-        <input type="text" id="expressionInput" placeholder="Enter Infix Expression">
-
-        <label>Speed:</label>
-        <input type="range" id="speedControl" min="0.2" max="2" step="0.1" value="1">
-        <span id="speedLabel">1x</span>
-
-        <button id="btnStart" onclick="startConversion()">Start</button>
-        <button id="btnReset" onclick="resetAll()">Reset</button>
-        <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
-        <button id="btnPrecedence" onclick="togglePrecedencePanel()">Operator Precedence</button>
-      </div>
-
-      <div id="precedenceSidebar" class="sidebar">
-        <h3>Operator Precedence Guide</h3>
-        <p>Operators have different priorities. Higher precedence operators are processed first.</p>
-        <div class="precedence-table">
-          <div class="precedence-row">
-            <span class="op">^ &nbsp; Exponentiation</span>
-            <span class="prec">Highest (3)</span>
-          </div>
-          <div class="precedence-row">
-            <span class="op">* / &nbsp; Multiply, Divide</span>
-            <span class="prec">Medium (2)</span>
-          </div>
-          <div class="precedence-row">
-            <span class="op">+ - &nbsp; Add, Subtract</span>
-            <span class="prec">Lowest (1)</span>
-          </div>
-        </div>
-        <div class="note">
-          <strong>How it works:</strong> When an operator is encountered, all stack operators with equal or higher precedence are popped to output before the new one is pushed.
-        </div>
-        <button onclick="togglePrecedencePanel()" class="close-btn">Close</button>
-      </div>
-
-      <div class="info">
-        <div><b>Step:</b> <span id="stepText">Waiting...</span></div>
-      </div>
-
-      <div class="visual-section">
-        <div>
-          <h3>Stack (Top ↑)</h3>
-          <div id="stackContainer" class="stack-container"></div>
-        </div>
-        <div>
-          <h3>Output</h3>
-          <div id="outputContainer" class="output-box"></div>
-        </div>
-      </div>
-
+    <!-- Controls -->
+    <div class="controls">
+      <select id="mode">
+        <option value="postfix">Infix → Postfix</option>
+        <option value="prefix">Infix → Prefix</option>
+      </select>
+      <input type="text" id="expressionInput" placeholder="e.g.  a+b*c  or  (a+b)*c^d">
+      <label>Speed:</label>
+      <input type="range" id="speedControl" min="0.2" max="2" step="0.1" value="1">
+      <span id="speedLabel">1x</span>
+      <button id="btnStart" onclick="startConversion()">Start</button>
+      <button id="btnReset" onclick="resetAll()">Reset</button>
+      <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+      <button id="btnPrecedence" onclick="togglePrecedencePanel()">Precedence Guide</button>
     </div>
-  </div>
 
-</div>
+    <!-- Precedence Sidebar (overlay) -->
+    <div id="precedenceSidebar" class="sidebar">
+      <h3>Operator Precedence Guide</h3>
+      <p>Higher precedence = processed first. Parentheses override everything.</p>
+      <div class="precedence-table">
+        <div class="precedence-row">
+          <span class="op">^ &nbsp; Exponentiation</span>
+          <span class="prec">Highest (3)</span>
+        </div>
+        <div class="precedence-row">
+          <span class="op">* / &nbsp; Multiply, Divide</span>
+          <span class="prec">Medium (2)</span>
+        </div>
+        <div class="precedence-row">
+          <span class="op">+ - &nbsp; Add, Subtract</span>
+          <span class="prec">Lowest (1)</span>
+        </div>
+      </div>
+      <div class="note">
+        <strong>Postfix:</strong> Pop operators with equal <em>or higher</em> priority (left-to-right).<br>
+        <strong>Prefix:</strong> Pop only <em>strictly higher</em> priority (handles right-to-left for <code>^</code>).
+      </div>
+      <button onclick="togglePrecedencePanel()" class="close-btn">Close</button>
+    </div>
+
+    <!-- Token Scanner -->
+    <div class="scanner-section">
+      <div class="scanner-label">Scanning →</div>
+      <div id="tokenScanner" class="token-scanner">
+        <span class="scanner-placeholder">tokens appear here during conversion</span>
+      </div>
+    </div>
+
+    <!-- Step Info -->
+    <div class="info">
+      <b>Step:</b> <span id="stepText">Waiting...</span>
+    </div>
+
+    <!-- ── Two-column main area ── -->
+    <div class="main-area">
+
+      <!-- LEFT: Stack + Output -->
+      <div class="viz-panel">
+        <div class="visual-section">
+          <div class="stack-panel">
+            <h3>Stack <span class="dim">(Top ↑)</span></h3>
+            <div id="stackContainer" class="stack-container"></div>
+          </div>
+          <div class="output-panel">
+            <h3>Output</h3>
+            <div id="outputContainer" class="output-box"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: WHY panel -->
+      <div class="why-panel">
+        <div class="why-header">
+          <span class="why-badge">WHY?</span>
+          <span id="expTitle">How it works</span>
+        </div>
+        <div id="expBody" class="why-body">
+          Enter an expression and press <strong>Start</strong>.
+        </div>
+        <div id="ruleBox" class="rule-box"></div>
+      </div>
+
+    </div><!-- end main-area -->
+
+  </div><!-- end content -->
+
+</div><!-- end app -->
 
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
 <script src="script.js"></script>
@@ -89,10 +117,6 @@ tsParticles.load("tsparticles", {
     move: { enable: true, speed: 2 }
   }
 });
-
-function togglePrecedencePanel() {
-  document.getElementById("precedenceSidebar").classList.toggle("open");
-}
 </script>
 
 </body>
